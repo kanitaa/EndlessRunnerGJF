@@ -1,36 +1,37 @@
-using System.Collections;
-using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class CameraFollow : MonoBehaviour
 {
-    public Transform target;
-    public Vector3 offset; // The offset from the target object
-    public Vector3 chaseOffset; // The offset from the target object
-    public bool IsChased = false;
-    public float smoothTime = 0.125f;
+    [SerializeField] private Transform _target;
+    [SerializeField] private Vector3 _offset;
+    [SerializeField] private Vector3 _chaseOffset;
 
-    private Vector3 velocity = Vector3.zero; // Velocity used by SmoothDamp
+    private bool _isPlayerChased = false;
+    public bool IsPlayerChased { get => _isPlayerChased; set => _isPlayerChased = value; }
+
+
+    [SerializeField] private float smoothTime = 0.125f;
+
+    private Vector3 velocity = Vector3.zero;
 
 
     void LateUpdate()
     {
-        if (target != null)
+        if (_target != null)
         {
-            Vector3 desiredPosition;
-            if (!IsChased)
-                desiredPosition = target.position + offset;
+            Vector3 newPosition;
+
+            if (!_isPlayerChased)
+                newPosition = _target.position + _offset;
             else
-                desiredPosition = target.position + chaseOffset;
+                newPosition = _target.position + _chaseOffset;
 
-            // Smoothly interpolate between the current position and the desired position using SmoothDamp
-            Vector3 smoothedPosition = Vector3.SmoothDamp(transform.position, desiredPosition, ref velocity, smoothTime);
+            
+            Vector3 smoothedPosition = Vector3.SmoothDamp(transform.position, newPosition, ref velocity, smoothTime);
 
-            // Keep the camera's X position unchanged
+            //Keep the camera's x position the same.
             smoothedPosition.x = transform.position.x;
 
-            // Set the position of the camera
             transform.position = smoothedPosition;
         }
     }

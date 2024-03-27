@@ -54,23 +54,18 @@ public class PlayerMovement : MonoBehaviour
         }
         else if (_isGrounded && !_isClimbing)
         {
-            Vector3 forwardVelocity = transform.forward * _movementSpeed;
-            _rb.velocity = forwardVelocity;
-           
+            _rb.velocity = transform.forward * _movementSpeed;
+
         }
         else if (_isClimbing)
         {
-            _rb.velocity = transform.up * _movementSpeed;
+            _rb.velocity = transform.forward * _climbSpeed;
         }
         else
         {
             _rb.AddForce(Physics.gravity * _rb.mass);
 
         }
-
-
-      
-
     }
 
     public void MoveLeft()
@@ -105,6 +100,9 @@ public class PlayerMovement : MonoBehaviour
             _rb.useGravity = false;
 
             _anim.SetBool("Climb", true);
+
+            transform.localRotation = Quaternion.Euler(-90, 0, 0);
+            transform.localPosition = new Vector3(transform.position.x, transform.position.y, transform.position.z + 0.5f);
             Debug.Log("Climbing");
         }
         else
@@ -113,6 +111,7 @@ public class PlayerMovement : MonoBehaviour
             _isClimbing = false;
             _rb.useGravity = true;
             Jump(true);
+            transform.localRotation = Quaternion.Euler(0, 0, 0);
             _anim.SetBool("Climb", false);
             Debug.Log("Finished climb");
         }
@@ -123,15 +122,12 @@ public class PlayerMovement : MonoBehaviour
     {
         if (isChasing)
         {
-            // _isMonsterChasing = true;
-            Camera.main.GetComponent<CameraFollow>().IsChased = true;
+            Camera.main.GetComponent<CameraFollow>().IsPlayerChased = true;
             transform.localRotation = Quaternion.Euler(0, 180, 0);
-
         }
         else
         {
-            //_isMonsterChasing = false;
-            Camera.main.GetComponent<CameraFollow>().IsChased = false;
+            Camera.main.GetComponent<CameraFollow>().IsPlayerChased = false;
             transform.localRotation = Quaternion.Euler(0, 0, 0);
         }
 

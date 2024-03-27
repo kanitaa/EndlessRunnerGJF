@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -9,13 +8,11 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager Instance;
 
-    [SerializeField] private float _minPathValue;
-    public float MinPathValue { get => _minPathValue; set => _minPathValue = value; }
-
-    [SerializeField] private float _maxPathValue;
-    public float MaxPathValue { get => _maxPathValue; set => _maxPathValue = value; }
+    private int _playerScore = 0;
 
 
+    [SerializeField] private int _playerHealth = 3;
+    public int PlayerHealth { get => _playerHealth; set => _playerHealth = value; }
 
 
     [SerializeField] List<GameObject> _areas = new();
@@ -23,6 +20,15 @@ public class GameManager : MonoBehaviour
     [SerializeField]
     private int [] _currentAreas = new int[2];
     [SerializeField] private int _firstArea = 0;
+
+
+    [SerializeField] private int _minPathValue;
+    public int MinPathValue { get => _minPathValue; set => _minPathValue = value; }
+
+    [SerializeField] private int _maxPathValue;
+    public int MaxPathValue { get => _maxPathValue; set => _maxPathValue = value; }
+
+
 
     private void Awake()
     {
@@ -37,6 +43,7 @@ public class GameManager : MonoBehaviour
         UpdateGameState(GameState.Start);
     }
 
+    #region Game State
     public void UpdateGameState(GameState state)
     {
      switch (state)
@@ -75,7 +82,7 @@ public class GameManager : MonoBehaviour
         TogglePause(true);
         Debug.Log("Game Over");
     }
-
+    #endregion
     public void TogglePause(bool isPaused)
     {
         if (isPaused)
@@ -113,6 +120,13 @@ public class GameManager : MonoBehaviour
 
         Debug.Log("New area added." + _areas[randomIndex].name);
     }
+
+    public void IncreaseScore(int amount)
+    {
+        _playerScore += amount;
+        UIManager.Instance.UpdateScore(_playerScore);
+    }
+
 
     public enum GameState
     {

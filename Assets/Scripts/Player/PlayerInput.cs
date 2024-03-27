@@ -1,13 +1,14 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerInput : MonoBehaviour
 {
-    PlayerMovement _movement;
+    private PlayerMovement _movement;
+    private Shoot _shoot;
+
     private void Start()
     {
         _movement = GetComponent<PlayerMovement>();
+        _shoot = GetComponent<Shoot>();
     }
     private void MovementInput()
     {
@@ -20,14 +21,31 @@ public class PlayerInput : MonoBehaviour
             _movement.Jump();
 
     }
+
+    private void ShootInput()
+    {
+        if (Input.GetMouseButtonDown(0))
+        {
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            RaycastHit hit;
+
+            if (Physics.Raycast(ray, out hit, 100))
+            {
+                _shoot.CakeThrow(hit.point);
+            }
+
+        }
+    }
     private void UIInput()
     {
-        if (Input.GetKeyDown(KeyCode.Escape)) UIManager.Instance.TogglePause();
+        if (Input.GetKeyDown(KeyCode.Escape)) 
+            UIManager.Instance.TogglePause();
 
     }
     private void Update()
     {
         MovementInput();
+        ShootInput();
         UIInput();
     }
 }

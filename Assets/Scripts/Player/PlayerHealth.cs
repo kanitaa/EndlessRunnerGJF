@@ -9,6 +9,7 @@ public class PlayerHealth : MonoBehaviour
 
     private void Start()
     {
+        _health = GameManager.Instance.PlayerHealth;
         _anim = GetComponent<Animator>();
     }
     public void TakeDamage()
@@ -16,6 +17,9 @@ public class PlayerHealth : MonoBehaviour
         _anim.SetBool("Run", false);
 
         _health--;
+        GameManager.Instance.PlayerHealth--;
+        UIManager.Instance.UpdateLives();
+
         if (_health < 1)
             Die();
         else
@@ -23,7 +27,13 @@ public class PlayerHealth : MonoBehaviour
 
         
     }
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.F))
+            TakeDamage();
 
+        
+    }
     public void Die()
     {
         Debug.Log("Dead");
@@ -31,6 +41,7 @@ public class PlayerHealth : MonoBehaviour
         Camera.main.GetComponent<DeathCamera>().Death();
         GetComponent<PlayerMovement>().enabled = false;
         GetComponent<PlayerInput>().enabled = false;
+        GetComponent<Rigidbody>().useGravity = true;
 
         
 
