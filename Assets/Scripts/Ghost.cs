@@ -14,6 +14,7 @@ public class Ghost : MonoBehaviour
     }
     void Die()
     {
+        AudioManager.Instance.PlaySound("Bloody punch", true);
         GameManager.Instance.IncreaseScore(_scoreValue);
         transform.GetChild(0).gameObject.SetActive(false);
         GetComponent<CapsuleCollider>().enabled = false;

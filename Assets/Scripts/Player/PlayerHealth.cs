@@ -7,6 +7,7 @@ public class PlayerHealth : MonoBehaviour
     [SerializeField] private int _health;
     private Animator _anim;
 
+    private bool _isDead = false;
     private void Start()
     {
         _health = GameManager.Instance.PlayerHealth;
@@ -14,11 +15,14 @@ public class PlayerHealth : MonoBehaviour
     }
     public void TakeDamage()
     {
+        if (_isDead) return;
+
         _anim.SetBool("Run", false);
 
         _health--;
         GameManager.Instance.PlayerHealth--;
         UIManager.Instance.UpdateLives();
+        AudioManager.Instance.PlaySound("ScreamsShouts2_Humans_Female_shout-of-pain_028", true);
 
         if (_health < 1)
             Die();
@@ -27,27 +31,31 @@ public class PlayerHealth : MonoBehaviour
 
         
     }
-    private void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.F))
-            TakeDamage();
-
-        
-    }
+  
     public void Die()
     {
-        Debug.Log("Dead");
+        if (_isDead) return;
 
+        _isDead = true;
+
+        GameManager.Instance.PlayerHealth=0;
+        UIManager.Instance.UpdateLives();
+       
+
+        AudioManager.Instance.PlayMusic("Rise (live vocals)");
         Camera.main.GetComponent<DeathCamera>().Death();
+
+
         GetComponent<PlayerMovement>().enabled = false;
         GetComponent<PlayerInput>().enabled = false;
         GetComponent<Rigidbody>().useGravity = true;
 
         
+        _anim.SetBool("Run", false);
 
         _anim.SetTrigger("Die");
 
-        Invoke("EndGame", 3);
+        Invoke("EndGame", 5);
 
     }
 

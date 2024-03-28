@@ -1,53 +1,16 @@
 using System.Collections;
 using UnityEngine;
-using UnityEngine.Pool;
 
 public class ObstacleDropper : MonoBehaviour
 {
-    [Header("Object Pool")]
-    [SerializeField] private Obstacle _obstaclePrefab;
-    private IObjectPool<Obstacle> _objectPool;
-    [SerializeField] private bool collectionCheck = true;
-    // extra options to control the pool capacity and maximum size
-    [SerializeField] private int defaultCapacity = 20;
-    [SerializeField] private int maxSize = 100;
-    private void Awake()
-    {
-        _objectPool = new ObjectPool<Obstacle>(CreateProjectile,
-        OnGetFromPool, OnReleaseToPool, OnDestroyPooledObject,
-        collectionCheck, defaultCapacity, maxSize);
+    [SerializeField] private GameObject[] _obstacles; 
 
-    }
     private void Start()
     {
         StartCoroutine(DropObstacle());
-    }
-    #region ObjectPool
-    // invoked when creating an item to populate the object pool
-    private Obstacle CreateProjectile()
-    {
-        Obstacle projectileInstance = Instantiate(_obstaclePrefab);
-        projectileInstance.ObjectPool = _objectPool;
-        return projectileInstance;
-    }
-    // invoked when returning an item to the object pool
-    private void OnReleaseToPool(Obstacle pooledObject)
-    {
-        pooledObject.gameObject.SetActive(false);
-    }
-    // invoked when retrieving the next item from the object pool
-    private void OnGetFromPool(Obstacle pooledObject)
-    {
-        pooledObject.gameObject.SetActive(true);
-    }
-    // invoked when we exceed the maximum number of pooled items (i.e. 
-    // destroy the pooled object)
-    private void OnDestroyPooledObject(Obstacle pooledObject)
-    {
-        Destroy(pooledObject.gameObject);
-    }
 
-    #endregion
+    }
+  
 
     private IEnumerator DropObstacle()
     {
@@ -68,10 +31,13 @@ public class ObstacleDropper : MonoBehaviour
             // Ensure the current position is within the range
             if (currentXPosition <= GameManager.Instance.MaxPathValue)
             {
-                Obstacle obstacle = _objectPool.Get();
+                int random = Random.Range(0, ObjectPoolManager.Instance.PoolsDictionary.Count);
+                GameObject obstacle = ObjectPoolManager.Instance.PoolsDictionary[random].Get();
+           
                 Vector3 obstaclePosition = transform.position;
                 obstaclePosition.x = currentXPosition;
                 obstacle.transform.position = obstaclePosition;
+               
             }
 
             // Move to the next position index

@@ -9,6 +9,10 @@ public class Teleport : MonoBehaviour
     private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Player"))
-            other.gameObject.transform.position = new Vector3(_destination.position.x, _destination.position.y+4, _destination.position.z);
+        {
+           // AudioManager.Instance.PlaySound("Magic Spell_Electricity Spell_1", true);
+            other.gameObject.transform.position = new Vector3(_destination.position.x, _destination.position.y + 4, _destination.position.z);
+        }
+            
     }
 }

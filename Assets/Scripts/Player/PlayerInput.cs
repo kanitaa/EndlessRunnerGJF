@@ -3,12 +3,12 @@ using UnityEngine;
 public class PlayerInput : MonoBehaviour
 {
     private PlayerMovement _movement;
-    private Shoot _shoot;
+    private Throw _throw;
 
     private void Start()
     {
         _movement = GetComponent<PlayerMovement>();
-        _shoot = GetComponent<Shoot>();
+        _throw = GetComponent<Throw>();
     }
     private void MovementInput()
     {
@@ -24,6 +24,8 @@ public class PlayerInput : MonoBehaviour
 
     private void ShootInput()
     {
+        if (GameManager.Instance.IsPaused) return;
+
         if (Input.GetMouseButtonDown(0))
         {
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
@@ -31,7 +33,7 @@ public class PlayerInput : MonoBehaviour
 
             if (Physics.Raycast(ray, out hit, 100))
             {
-                _shoot.CakeThrow(hit.point);
+                _throw.CakeThrow(hit.point);
             }
 
         }

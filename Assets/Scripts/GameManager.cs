@@ -9,7 +9,7 @@ public class GameManager : MonoBehaviour
     public static GameManager Instance;
 
     private int _playerScore = 0;
-
+    public int Score { get => _playerScore; }
 
     [SerializeField] private int _playerHealth = 3;
     public int PlayerHealth { get => _playerHealth; set => _playerHealth = value; }
@@ -28,7 +28,8 @@ public class GameManager : MonoBehaviour
     [SerializeField] private int _maxPathValue;
     public int MaxPathValue { get => _maxPathValue; set => _maxPathValue = value; }
 
-
+    private bool _isPaused = false;
+    public bool IsPaused { get => _isPaused; }
 
     private void Awake()
     {
@@ -74,6 +75,7 @@ public class GameManager : MonoBehaviour
     private void RunGame()
     {
         TogglePause(false);
+        AudioManager.Instance.PlayMusic("LOOP_Happy Quest");
     }
 
     private void EndGame()
@@ -89,6 +91,8 @@ public class GameManager : MonoBehaviour
             Time.timeScale = 0;
         else
             Time.timeScale = 1;
+
+        _isPaused = isPaused;
     }
 
     public void RestartLevel()

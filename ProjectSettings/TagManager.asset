@@ -14,6 +14,7 @@ TagManager:
   - MonsterTrigger
   - GripTrigger
   - Cake
+  - Grass
   layers:
   - Default
   - TransparentFX

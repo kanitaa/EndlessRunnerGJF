@@ -3,10 +3,10 @@ using UnityEngine.Pool;
 
 public class CakeProjectile : MonoBehaviour
 {
-    private IObjectPool<CakeProjectile> objectPool;
+    private IObjectPool<CakeProjectile> _cakePool;
 
-    // public property to give the projectile a reference to its ObjectPool
-    public IObjectPool<CakeProjectile> ObjectPool { set => objectPool = value; }
+    //Give the projectile a reference to its ObjectPool.
+    public IObjectPool<CakeProjectile> CakePool { set => _cakePool = value; }
 
 
 }

@@ -156,11 +156,12 @@ public class PlayerMovement : MonoBehaviour
         }
         if (climbJump)
         {
+            Debug.Log("Climju");
             // Set the Rigidbody's velocity to the desired jump velocity
             Vector3 jumpVelocity = Vector3.up * _jumpForceUp/2;
 
-            // Add forward velocity to the jump (optional)
-            jumpVelocity += transform.forward * _jumpForceForward/2;
+           
+            jumpVelocity = Vector3.up * _jumpForceForward;
 
             // Set the Rigidbody's velocity
             _rb.velocity = jumpVelocity;
@@ -169,7 +170,6 @@ public class PlayerMovement : MonoBehaviour
             _isJumping = true;
             _anim.SetTrigger("Jump");
 
-            Debug.Log("Jump");
         }
        
     }
