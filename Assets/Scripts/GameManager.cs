@@ -8,6 +8,9 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager Instance;
 
+    private GameState _myGameState;
+    public GameState MyGameState { get => _myGameState; }
+
     private int _playerScore = 0;
     public int Score { get => _playerScore; }
 
@@ -68,19 +71,21 @@ public class GameManager : MonoBehaviour
         _currentAreas[0] = 0;
         _currentAreas[1] = -1;
         _firstArea = 0;
-
+        _myGameState = GameState.Start;
         TogglePause(true);
     }
 
     private void RunGame()
     {
         TogglePause(false);
+        _myGameState = GameState.Running;
         AudioManager.Instance.PlayMusic("LOOP_Happy Quest");
     }
 
     private void EndGame()
     {
         UIManager.Instance.GameOver();
+        _myGameState = GameState.End;
         TogglePause(true);
         Debug.Log("Game Over");
     }

@@ -40,10 +40,11 @@ public class PlayerInput : MonoBehaviour
     }
     private void UIInput()
     {
-        if (Input.GetKeyDown(KeyCode.Escape)) 
+        if (Input.GetKeyDown(KeyCode.Escape) && GameManager.Instance.MyGameState == GameManager.GameState.Running)
             UIManager.Instance.TogglePause();
-
+ 
     }
+
     private void Update()
     {
         MovementInput();

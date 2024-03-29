@@ -177,7 +177,7 @@ public class PlayerMovement : MonoBehaviour
     public void StartGripping()
     {
         _gripSequenceStarted = true;
-       // _rb.useGravity = false;
+       
     }
     public void MoveToGrip(Transform grip, bool gripFailed=false)
     {

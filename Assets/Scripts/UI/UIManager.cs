@@ -79,7 +79,7 @@ public class UIManager : MonoBehaviour
     {
         _gameOverPanel.SetActive(true);
         _gameOverlayPanel.SetActive(false);
-        _killAmount.text = GameManager.Instance.Score.ToString() + " ghosts!";
+        _killAmount.text = "You destroyed \n<u>"+ GameManager.Instance.Score.ToString()+"</u> ghosts!";
     }
 
     public void UpdateScore(int amount)

@@ -94,6 +94,16 @@ public class Monster : MonoBehaviour
         _anim.SetBool("Stunned Loop", false);
 
     }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("Player") && _myState == MonsterState.Chase)
+        {
+            _myState = MonsterState.ResetChase;
+            _anim.SetBool("Run Forward", false);
+            _anim.SetBool("Stunned Loop", true);
+        }
+    }
 }
 
 enum MonsterState

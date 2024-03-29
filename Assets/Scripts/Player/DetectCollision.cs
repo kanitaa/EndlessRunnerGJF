@@ -25,7 +25,7 @@ public class DetectCollision : MonoBehaviour
             _movement.StartGripping();
         }
 
-        if (other.CompareTag("Monster"))
+        if (other.CompareTag("Monster") && !_health.IsDead)
         {
             Debug.Log("Monster hit");
             Transform endPosition = other.GetComponent<Monster>().BounceEnd;

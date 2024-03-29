@@ -78,6 +78,8 @@ public class GripContainer : MonoBehaviour
           
                 _checkSequence = false;
                 _movement.MoveToGrip(_movement.gameObject.transform, true);
+                if(_gripIndex > 0)
+                    _grips[_gripIndex-1].DestroyGrip();
                 Debug.Log("Timer ran out");
             }
 
