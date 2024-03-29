@@ -9,7 +9,9 @@ public class AudioManager : MonoBehaviour
     [SerializeField] AudioSource _musicSource, _soundSource;
     [SerializeField] AudioMixer _gameAudio;
 
-    float _volume;
+
+    private float _volume;
+    public float Volume { get => _volume; set => _volume = value; }
 
     
     private bool _isMuted;
@@ -24,6 +26,8 @@ public class AudioManager : MonoBehaviour
             Destroy(gameObject);
 
         DontDestroyOnLoad(this);
+
+        _volume = -5;
     }
     public void PlayMusic(string musicClipName)
     {

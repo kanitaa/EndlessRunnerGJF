@@ -57,7 +57,9 @@ public class GripContainer : MonoBehaviour
         Debug.Log("Player entered start area");
         _checkSequence = true;
         lastKeyPressTime = Time.time;
-        
+
+        _grips[_gripIndex].GetComponent<Grip>().EnableGlow(true);
+
         StartCoroutine(GripSequence());
     }
 
@@ -90,10 +92,14 @@ public class GripContainer : MonoBehaviour
                 
                 lastKeyPressTime = Time.time;
 
+                _grips[_gripIndex].GetComponent<Grip>().EnableGlow(false);
+
                 if (!_reverseOrder)
                     _gripIndex++;
                 else 
                     _gripIndex--;
+
+               
 
                 // Series completed!
                 if (!_reverseOrder && _gripIndex >= _gripKeyOrder.Count || _reverseOrder && _gripIndex <= -1)
@@ -106,6 +112,11 @@ public class GripContainer : MonoBehaviour
 
                     yield return new WaitForSeconds(2);
                     _movement.GripSequenceStarted = false;
+                }
+                else
+                {
+                    _grips[_gripIndex].GetComponent<Grip>().EnableGlow(true);
+                   
                 }
             }
             // Wrong key pressed!

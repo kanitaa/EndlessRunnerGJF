@@ -34,7 +34,9 @@ public class UIMenu : MonoBehaviour
 
         _backButtonOptions.onClick.AddListener(ToggleOptions);
         _audioSlider.onValueChanged.AddListener(ChangeVolume);
-        ChangeVolume(_audioSlider.value);
+
+        _audioSlider.value = AudioManager.Instance.Volume;
+        ChangeVolume(AudioManager.Instance.Volume);
 
 
         _backButtonCredits.onClick.AddListener(ToggleCredits);
