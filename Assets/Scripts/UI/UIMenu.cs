@@ -7,7 +7,7 @@ public class UIMenu : MonoBehaviour
 {
     [Header("Menu")]
     [SerializeField] private GameObject _menu;
-    [SerializeField] private Button _startButton, _optionsButton, _creditsButton, _quitButton;
+    [SerializeField] private Button _startButton, _optionsButton, _leaderboardButton, _creditsButton, _quitButton;
 
     [Header("Options")]
     [SerializeField] private GameObject _options;
@@ -21,6 +21,12 @@ public class UIMenu : MonoBehaviour
     [SerializeField] private Button _backButtonCredits;
 
 
+    [Header("Leaderboard")]
+    [SerializeField] private GameObject _leaderboard;
+    [SerializeField] private TextMeshProUGUI _highscoreList;
+    [SerializeField] private Button _backButtonLeaderboard;
+
+
     private void Start()
     {
         SetButtonClicks();
@@ -29,6 +35,7 @@ public class UIMenu : MonoBehaviour
     {
         _startButton.onClick.AddListener(StartGame);
         _optionsButton.onClick.AddListener(ToggleOptions);
+        _leaderboardButton.onClick.AddListener(ToggleLeaderboard);
         _creditsButton.onClick.AddListener(ToggleCredits);
         _quitButton.onClick.AddListener(QuitGame);
 
@@ -43,7 +50,10 @@ public class UIMenu : MonoBehaviour
 
         _credits.SetActive(false);
 
+        _backButtonLeaderboard.onClick.AddListener(ToggleLeaderboard);
+
         AudioManager.Instance.PlayMusic("LOOP_Welcome to Indie Game");
+        PlayFabManager.Instance.GetLeaderboard();
     }
 
     private void StartGame()
@@ -63,6 +73,15 @@ public class UIMenu : MonoBehaviour
             _credits.GetComponent<Credits>().PlayCredits();
     }
 
+    public void ToggleLeaderboard()
+    {
+        _leaderboard.SetActive(!_leaderboard.activeSelf);
+    }
+
+    public void UpdateLeaderboard(string leaderboard)
+    {
+        _highscoreList.text = leaderboard;
+    }
     void ChangeVolume(float value)
     {
         AudioManager.Instance.SetVolume(value);

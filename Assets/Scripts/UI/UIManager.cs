@@ -10,6 +10,7 @@ public class UIManager : MonoBehaviour
 
     [SerializeField] private GameObject _startPanel;
     [SerializeField] private Button _startButton;
+    [SerializeField] private TMP_InputField _userNameInput;
 
 
     [SerializeField] private GameObject _pausePanel;
@@ -48,6 +49,9 @@ public class UIManager : MonoBehaviour
 
         _muteToggle.onValueChanged.AddListener(ToggleMute);
         _returnMenuButton.onClick.AddListener(ReturnMenu);
+
+        if (PlayFabManager.Instance.UserNameSet)
+            _userNameInput.gameObject.SetActive(false);
     }
    
 
@@ -55,6 +59,10 @@ public class UIManager : MonoBehaviour
     {
         _startPanel.SetActive(false);
         _gameOverlayPanel.SetActive(true);
+
+        string userName = _userNameInput.text;
+        GameManager.Instance.PlayerName = userName;
+        PlayFabManager.Instance.SendUserDisplayName(userName);
         GameManager.Instance.UpdateGameState(GameManager.GameState.Running);
     }
 

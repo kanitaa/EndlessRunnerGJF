@@ -18,6 +18,10 @@ public class GameManager : MonoBehaviour
     public int PlayerHealth { get => _playerHealth; set => _playerHealth = value; }
 
 
+    [SerializeField] private string _playerName;
+    public string PlayerName { get => _playerName; set => _playerName = value; }
+
+
     [SerializeField] List<GameObject> _areas = new();
 
     [SerializeField]
@@ -40,6 +44,7 @@ public class GameManager : MonoBehaviour
             Instance = this;
         else 
             Destroy(gameObject);
+
     }
 
     private void Start()
@@ -87,6 +92,7 @@ public class GameManager : MonoBehaviour
         UIManager.Instance.GameOver();
         _myGameState = GameState.End;
         TogglePause(true);
+        PlayFabManager.Instance.SendLeaderboard(_playerScore);
         Debug.Log("Game Over");
     }
     #endregion
