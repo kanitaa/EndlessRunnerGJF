@@ -31,8 +31,8 @@ public class ObstacleDropper : MonoBehaviour
             // Ensure the current position is within the range
             if (currentXPosition <= GameManager.Instance.MaxPathValue)
             {
-                int random = Random.Range(0, ObjectPoolManager.Instance.PoolsDictionary.Count);
-                GameObject obstacle = ObjectPoolManager.Instance.PoolsDictionary[random].Get();
+                int random = Random.Range(0, ObjectPoolManager.Instance.ObstaclePoolsDictionary.Count);
+                GameObject obstacle = ObjectPoolManager.Instance.ObstaclePoolsDictionary[random].Get();
            
                 Vector3 obstaclePosition = transform.position;
                 obstaclePosition.x = currentXPosition;

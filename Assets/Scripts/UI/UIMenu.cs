@@ -26,6 +26,7 @@ public class UIMenu : MonoBehaviour
     [Header("Leaderboard")]
     [SerializeField] private GameObject _leaderboard;
     [SerializeField] private TextMeshProUGUI _highscoreList;
+    [SerializeField] private GameObject _fireworks;
     [SerializeField] private Button _backButtonLeaderboard;
 
 
@@ -91,6 +92,19 @@ public class UIMenu : MonoBehaviour
     public void ToggleLeaderboard()
     {
         _leaderboard.SetActive(!_leaderboard.activeSelf);
+
+        if (_leaderboard.activeSelf)
+        {
+            _fireworks.GetComponent<ParticleSystem>().Play();
+            AudioManager.Instance.PlaySound("CrowdCheer", true);
+
+
+        }
+        else
+        {
+            _fireworks.SetActive(false);
+            _fireworks.SetActive(true);
+        }
     }
 
     public void UpdateLeaderboard(string leaderboard)
@@ -131,7 +145,7 @@ public class UIMenu : MonoBehaviour
     {
         _startButton.interactable = true;
 
-        PlayFabManager.Instance.SendUserDisplayName(input);
+        PlayFabManager.Instance.SendUserName(input);
         PlayerPrefs.SetString("Username", input);
 
     }

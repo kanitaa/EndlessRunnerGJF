@@ -177,7 +177,6 @@ public class PlayerMovement : MonoBehaviour
     public void StartGripping()
     {
         _gripSequenceStarted = true;
-       
     }
     public void MoveToGrip(Transform grip, bool gripFailed=false)
     {
@@ -215,6 +214,7 @@ public class PlayerMovement : MonoBehaviour
         else
             GetComponent<PlayerHealth>().Die();
 
+        _gripSequenceStarted = false;
     }
 
    

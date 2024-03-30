@@ -27,12 +27,14 @@ public class AudioManager : MonoBehaviour
 
         DontDestroyOnLoad(this);
 
+        //Set default volume value.
         _volume = -5;
     }
     public void PlayMusic(string musicClipName)
     {
         //If music is already playing, stop it.
         _musicSource.Stop();
+
         //Find matching string from the music folder.
         AudioClip musicClip = Resources.Load<AudioClip>("Audio/Music/" + musicClipName);
 
@@ -51,6 +53,7 @@ public class AudioManager : MonoBehaviour
     {
         //Find matching string from the sounds folder.
         AudioClip soundClip = Resources.Load<AudioClip>("Audio/Sounds/" + soundClipName);
+
         if (soundClip == null)
         {
             Debug.Log(soundClip + " doesn't exist");
@@ -68,9 +71,11 @@ public class AudioManager : MonoBehaviour
     public void SetVolume(float volume)
     {
         //If volume is -35, player can barely hear it, so mute it completely.
-        if (volume == -35) 
+        if (volume == -35)
+        {
             volume = -80;
-
+        }
+            
         _gameAudio.SetFloat("Volume", volume);
 
         //Store previous volume value if player wants to mute audio.

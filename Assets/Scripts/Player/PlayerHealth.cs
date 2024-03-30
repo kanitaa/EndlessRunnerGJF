@@ -16,22 +16,28 @@ public class PlayerHealth : MonoBehaviour
     }
     public void TakeDamage()
     {
-        if (_isDead) return;
-
-
-        _health--;
-
-        if (_health < 1)
-            Die();
-        else
-            _anim.SetTrigger("TakeHit");
-
-
-
-        _anim.SetBool("Run", false);
-
+        return;
+        if (_isDead)
+        {
+            return;
+        }
 
         GameManager.Instance.PlayerHealth--;
+        _health = GameManager.Instance.PlayerHealth;
+
+        if (_health < 1)
+        {
+            Die();
+        }
+        else
+        {
+            _anim.SetTrigger("TakeHit");
+        }
+            
+        //_anim.SetBool("Run", false);
+
+
+        
         UIManager.Instance.UpdateLives();
         AudioManager.Instance.PlaySound("ScreamsShouts2_Humans_Female_shout-of-pain_028", true);
 
@@ -41,7 +47,10 @@ public class PlayerHealth : MonoBehaviour
   
     public void Die()
     {
-        if (_isDead) return;
+        if (_isDead)
+        {
+            return;
+        }
 
         _isDead = true;
 
@@ -50,7 +59,7 @@ public class PlayerHealth : MonoBehaviour
         GetComponent<PlayerInput>().enabled = false;
         GetComponent<Rigidbody>().useGravity = true;
 
-        _anim.SetBool("Run", false);
+       // _anim.SetBool("Run", false);
         _anim.SetTrigger("Die");
 
 

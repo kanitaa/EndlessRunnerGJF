@@ -67,7 +67,7 @@ public class UIManager : MonoBehaviour
     {
         _startButton.interactable = true;
 
-        PlayFabManager.Instance.SendUserDisplayName(input);
+        PlayFabManager.Instance.SendUserName(input);
         PlayerPrefs.SetString("Username", input);
        
     }
@@ -82,7 +82,7 @@ public class UIManager : MonoBehaviour
         if (!PlayerPrefs.HasKey("Username"))
         {
             string userName = _userNameInput.text;
-            PlayFabManager.Instance.SendUserDisplayName(userName);
+            PlayFabManager.Instance.SendUserName(userName);
             PlayerPrefs.SetString("Username", userName);
         }
       

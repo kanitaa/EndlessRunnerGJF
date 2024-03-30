@@ -6,13 +6,13 @@ public class ObjectPoolManager : MonoBehaviour
 {
     public static ObjectPoolManager Instance;
 
-
     [Header("Cake Pool")]
     [SerializeField] private GameObject _cakePrefab;
+
     private IObjectPool<GameObject> _cakePool;
     public IObjectPool<GameObject> CakePool { get => _cakePool; }
 
-    //Throw an exception if we try to return an existing item, already in the pool.
+    //Throw an exception if trying to return an existing item, already in the pool.
     [SerializeField] private bool _cakeCollectionCheck = true;
     //Extra options to control the pool capacity and maximum size.
     [SerializeField] private int _cakeDefaultCapacity = 20;
@@ -23,23 +23,26 @@ public class ObjectPoolManager : MonoBehaviour
     [Header("Obstacle Pool")]
     [SerializeField] private GameObject [] _obstaclePrefabs;
 
-    // Dictionary to store pools with InstanceID as keys.
-    private Dictionary<int, IObjectPool<GameObject>> _poolsDictionary = new Dictionary<int, IObjectPool<GameObject>>();
-    public Dictionary<int, IObjectPool<GameObject>> PoolsDictionary { get { return _poolsDictionary; } }
+    // Dictionary to store pools with ID as keys.
+    private Dictionary<int, IObjectPool<GameObject>> _obstaclePoolsDictionary = new Dictionary<int, IObjectPool<GameObject>>();
+    public Dictionary<int, IObjectPool<GameObject>> ObstaclePoolsDictionary { get { return _obstaclePoolsDictionary; } }
     
     [SerializeField] private bool _obstacleCollectionCheck = true;
     [SerializeField] private int _obstacleDefaultCapacity = 20;
     [SerializeField] private int _obstaclePoolMaxSize = 100;
     
-    private int _id = 0;
+    private int _ID = 0;
 
     private void Awake()
     {
         if (Instance == null)
+        {
             Instance = this;
+        }
         else
+        {
             Destroy(gameObject);
-
+        }
 
         InitializePools();
     }
@@ -47,25 +50,24 @@ public class ObjectPoolManager : MonoBehaviour
     private void InitializePools()
     {
         CreatePool(_cakePrefab, _cakeDefaultCapacity, _cakePoolMaxSize, _cakeCollectionCheck);
-        _cakePool = _poolsDictionary[0];
+        _cakePool = _obstaclePoolsDictionary[0];
 
-        //Reset pools dictionary, don't want any cakes there with obstacles.
-        _id = 0;
-        _poolsDictionary = new();
+        //Reset pools dictionary, don't want any cakes in obstacle pools.
+        _ID = 0;
+        _obstaclePoolsDictionary = new();
 
         for (int i = 0; i < _obstaclePrefabs.Length; i++)
+        {
             CreatePool(_obstaclePrefabs[i], _obstacleDefaultCapacity, _obstaclePoolMaxSize, _obstacleCollectionCheck);
+        }
     }
 
-
-    #region Obstacle Pools
-
-    public void CreatePool(GameObject prefab, int defaultCapacity, int maxSize, bool collectionCheck)
+    private void CreatePool(GameObject prefab, int defaultCapacity, int maxSize, bool collectionCheck)
     {
-        int id = _id;
-        _id++;
+        int ID = _ID;
+        _ID++;
         
-        if (!_poolsDictionary.ContainsKey(id))
+        if (!_obstaclePoolsDictionary.ContainsKey(ID))
         {
             //Create a new pool for the prefab.
             IObjectPool<GameObject> pool = new ObjectPool<GameObject>(
@@ -75,10 +77,15 @@ public class ObjectPoolManager : MonoBehaviour
                     Obstacle obstacle = obj.GetComponent<Obstacle>();
 
                     if (obstacle != null)
-                        obstacle.id = id; 
+                    {
+                        //Set obstacles ID for releasing to pool.
+                        obstacle.id = ID;
+                    }
                     else
+                    {
                         Debug.LogWarning("Obstacle component not found on prefab: " + prefab.name);
-             
+                    }
+                        
                     return obj;
                 },
                 OnGetFromPool,
@@ -88,22 +95,29 @@ public class ObjectPoolManager : MonoBehaviour
                 defaultCapacity,
                 maxSize);
 
-            _poolsDictionary[id] = pool;
+            _obstaclePoolsDictionary[ID] = pool;
 
         }
-        else
+        else 
+        {
             Debug.LogWarning("Pool already exists for prefab: " + prefab.name);
+        }
+           
         
     }
 
     //Release an object back to its pool.
     public void ReleaseObject(GameObject obj, int id)
     {
-        if (_poolsDictionary.ContainsKey(id))
-            _poolsDictionary[id].Release(obj);
-
+        if (_obstaclePoolsDictionary.ContainsKey(id))
+        {
+            _obstaclePoolsDictionary[id].Release(obj);
+        }
         else
+        {
             Debug.LogWarning("No pool found for the released object: " + obj.name);
+        }
+           
     }
 
     //Create new object for the pool.
@@ -111,6 +125,8 @@ public class ObjectPoolManager : MonoBehaviour
     {
         return Instantiate(prefab);
     }
+
+    #region Callback functions
 
     private void OnGetFromPool(GameObject obj) 
     {

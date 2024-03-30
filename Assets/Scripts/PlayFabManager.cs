@@ -1,6 +1,5 @@
 using PlayFab;
 using PlayFab.ClientModels;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -13,84 +12,88 @@ public class PlayFabManager : MonoBehaviour
 
     private bool _loggedIn;
     public bool LoggedIn { get => _loggedIn; }
+
     private void Awake()
     {
-        //Ensure there is only one AudioManager.
+        //Ensure there is only one PlayfabManager.
         if (Instance == null)
+        {
             Instance = this;
+        }
         else
+        {
             Destroy(gameObject);
-
+        }
+           
         DontDestroyOnLoad(this);
     }
     private void Start()
     {
       
-        //Store random userID to Playerprefs and use it as Playfab userID
-
+        //Store random string UserID to PlayerPrefs, and use it as Playfab userID.
         if (!PlayerPrefs.HasKey("UserID"))
         {
-            _userID = RandomString(15);
+            _userID = RandomID(15);
             PlayerPrefs.SetString("UserID", _userID);
-
         }
         else
         {
             _userID = PlayerPrefs.GetString("UserID");
-           
         }
-
 
         Login();
 
-       
-
     }
 
-    private string RandomString(int length)
+    #region User
+    private string RandomID(int length)
     {
         const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
         return new string(Enumerable.Range(1, length).Select(_ => chars[Random.Range(0, chars.Length)]).ToArray());
     }
 
-    void Login()
+    private void Login()
     {
         var request = new LoginWithCustomIDRequest
         {
             CustomId = _userID,
             CreateAccount = true
         };
-        PlayFabClientAPI.LoginWithCustomID(request, OnSuccess, OnError);
+
+        PlayFabClientAPI.LoginWithCustomID(request, OnLogin, OnError);
     }
 
-    void OnSuccess(LoginResult result)
+    private void OnLogin(LoginResult result)
     {
-        Debug.Log("Succesful login/account create");
+        Debug.Log("Successful login!");
         _loggedIn = true;
         GetLeaderboard();
     }
 
-    void OnError(PlayFabError error)
-    {
-        Debug.Log("Error while logging in.");
-        Debug.Log(error.GenerateErrorReport());
-    }
-
-    public void SendUserDisplayName(string displayName)
+    public void SendUserName(string displayName)
     {
         var request = new UpdateUserTitleDisplayNameRequest
         {
             DisplayName = displayName
         };
 
-        PlayFabClientAPI.UpdateUserTitleDisplayName(request, OnUserDisplayNameUpdate, OnError);
+        PlayFabClientAPI.UpdateUserTitleDisplayName(request, OnUserNameUpdate, OnUserNameError);
     }
 
-    void OnUserDisplayNameUpdate(UpdateUserTitleDisplayNameResult result)
+    private void OnUserNameUpdate(UpdateUserTitleDisplayNameResult result)
     {
-        Debug.Log("Success");
+        Debug.Log("Successful username change.");
     }
 
+    private void OnUserNameError(PlayFabError error)
+    {
+        //TO-DO notify player when name change fails.
+        Debug.Log("Error while updating username.");
+        Debug.Log(error.GenerateErrorReport());
+    }
+    #endregion
+
+    #region Leaderboard
     public void SendLeaderboard(int score)
     {
         var request = new UpdatePlayerStatisticsRequest
@@ -104,12 +107,13 @@ public class PlayFabManager : MonoBehaviour
                 }
             }
         };
+
         PlayFabClientAPI.UpdatePlayerStatistics(request, OnLeaderboardUpdate, OnError);
     }
 
-    void OnLeaderboardUpdate(UpdatePlayerStatisticsResult result)
+    private void OnLeaderboardUpdate(UpdatePlayerStatisticsResult result)
     {
-        Debug.Log("Success");
+        Debug.Log("Successful leaderboard update.");
     }
 
     public void GetLeaderboard()
@@ -120,10 +124,11 @@ public class PlayFabManager : MonoBehaviour
             StartPosition = 0,
             MaxResultsCount = 10
         };
+
         PlayFabClientAPI.GetLeaderboard(request, OnLeaderboardGet, OnError);
     }
 
-    void OnLeaderboardGet(GetLeaderboardResult result)
+    private void OnLeaderboardGet(GetLeaderboardResult result)
     {
         UIMenu menu = GameObject.Find("MenuUI").GetComponent<UIMenu>();
 
@@ -138,5 +143,13 @@ public class PlayFabManager : MonoBehaviour
         }
 
         menu.UpdateLeaderboard(leaderboard);
+    }
+    #endregion
+
+
+    private void OnError(PlayFabError error)
+    {
+        Debug.Log("Error while requesting.");
+        Debug.Log(error.GenerateErrorReport());
     }
 }
