@@ -2,13 +2,17 @@ using PlayFab;
 using PlayFab.ClientModels;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class PlayFabManager : MonoBehaviour
 {
     public static PlayFabManager Instance;
 
-    public bool UserNameSet = false;
+    private string _userID;
+
+    private bool _loggedIn;
+    public bool LoggedIn { get => _loggedIn; }
     private void Awake()
     {
         //Ensure there is only one AudioManager.
@@ -21,25 +25,48 @@ public class PlayFabManager : MonoBehaviour
     }
     private void Start()
     {
-       
+      
+        //Store random userID to Playerprefs and use it as Playfab userID
+
+        if (!PlayerPrefs.HasKey("UserID"))
+        {
+            _userID = RandomString(15);
+            PlayerPrefs.SetString("UserID", _userID);
+
+        }
+        else
+        {
+            _userID = PlayerPrefs.GetString("UserID");
+           
+        }
+
+
         Login();
 
+       
+
     }
+
+    private string RandomString(int length)
+    {
+        const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        return new string(Enumerable.Range(1, length).Select(_ => chars[Random.Range(0, chars.Length)]).ToArray());
+    }
+
     void Login()
     {
         var request = new LoginWithCustomIDRequest
         {
-            CustomId = SystemInfo.deviceUniqueIdentifier,
+            CustomId = _userID,
             CreateAccount = true
         };
         PlayFabClientAPI.LoginWithCustomID(request, OnSuccess, OnError);
-
-      
     }
 
     void OnSuccess(LoginResult result)
     {
         Debug.Log("Succesful login/account create");
+        _loggedIn = true;
         GetLeaderboard();
     }
 
@@ -62,7 +89,6 @@ public class PlayFabManager : MonoBehaviour
     void OnUserDisplayNameUpdate(UpdateUserTitleDisplayNameResult result)
     {
         Debug.Log("Success");
-        UserNameSet = true;
     }
 
     public void SendLeaderboard(int score)
@@ -108,7 +134,6 @@ public class PlayFabManager : MonoBehaviour
 
             int position =  int.Parse(item.Position.ToString())+1;
             leaderboard += position + ". " + item.DisplayName + " " + item.StatValue +"\n";
-
 
         }
 

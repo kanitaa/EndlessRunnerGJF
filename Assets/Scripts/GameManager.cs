@@ -18,10 +18,6 @@ public class GameManager : MonoBehaviour
     public int PlayerHealth { get => _playerHealth; set => _playerHealth = value; }
 
 
-    [SerializeField] private string _playerName;
-    public string PlayerName { get => _playerName; set => _playerName = value; }
-
-
     [SerializeField] List<GameObject> _areas = new();
 
     [SerializeField]

@@ -50,19 +50,43 @@ public class UIManager : MonoBehaviour
         _muteToggle.onValueChanged.AddListener(ToggleMute);
         _returnMenuButton.onClick.AddListener(ReturnMenu);
 
-        if (PlayFabManager.Instance.UserNameSet)
+        if (PlayerPrefs.HasKey("Username"))
+        {
             _userNameInput.gameObject.SetActive(false);
+        }
+        else
+        {
+            _startButton.interactable = false;
+        
+            _userNameInput.onSubmit.AddListener(OnUserNameChanged);
+            _userNameInput.onEndEdit.AddListener(OnUserNameChanged);
+        }
+            
     }
-   
+    private void OnUserNameChanged(string input)
+    {
+        _startButton.interactable = true;
+
+        PlayFabManager.Instance.SendUserDisplayName(input);
+        PlayerPrefs.SetString("Username", input);
+       
+    }
 
     private void RunGame()
     {
         _startPanel.SetActive(false);
         _gameOverlayPanel.SetActive(true);
 
-        string userName = _userNameInput.text;
-        GameManager.Instance.PlayerName = userName;
-        PlayFabManager.Instance.SendUserDisplayName(userName);
+       
+
+        if (!PlayerPrefs.HasKey("Username"))
+        {
+            string userName = _userNameInput.text;
+            PlayFabManager.Instance.SendUserDisplayName(userName);
+            PlayerPrefs.SetString("Username", userName);
+        }
+      
+
         GameManager.Instance.UpdateGameState(GameManager.GameState.Running);
     }
 
@@ -79,7 +103,7 @@ public class UIManager : MonoBehaviour
 
     private void ReturnMenu()
     {
-        GameManager.Instance.TogglePause(true);
+        GameManager.Instance.TogglePause(false);
         SceneManager.LoadScene("MenuScene");
     }
 

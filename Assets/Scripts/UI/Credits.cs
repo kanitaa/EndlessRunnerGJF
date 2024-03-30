@@ -11,12 +11,13 @@ public class Credits : MonoBehaviour
     private float _startPosition;
 
     [SerializeField] private float _scrollDuration;
-    void Start()
+
+    private void Start()
     {
         _scroll = GetComponent<ScrollRect>();
         _startPosition = _scroll.content.localPosition.y;
-
     }
+  
     IEnumerator ScrollToPosition(float targetPosition)
     {
         float elapsedTime = 0f;

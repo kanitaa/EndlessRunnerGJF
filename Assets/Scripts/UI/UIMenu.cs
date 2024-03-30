@@ -13,6 +13,8 @@ public class UIMenu : MonoBehaviour
     [SerializeField] private GameObject _options;
     [SerializeField] Slider _audioSlider;
     [SerializeField] private TextMeshProUGUI _volumeAmount;
+    [SerializeField] private TMP_InputField _usernameInput;
+    [SerializeField] private TextMeshProUGUI _usernamePlaceholder;
     [SerializeField] private Button _backButtonOptions;
 
 
@@ -45,6 +47,10 @@ public class UIMenu : MonoBehaviour
         _audioSlider.value = AudioManager.Instance.Volume;
         ChangeVolume(AudioManager.Instance.Volume);
 
+        _usernameInput.onSubmit.AddListener(OnUserNameChanged);
+        _usernameInput.onEndEdit.AddListener(OnUserNameChanged);
+
+        _usernamePlaceholder.text = PlayerPrefs.GetString("Username");
 
         _backButtonCredits.onClick.AddListener(ToggleCredits);
 
@@ -53,7 +59,12 @@ public class UIMenu : MonoBehaviour
         _backButtonLeaderboard.onClick.AddListener(ToggleLeaderboard);
 
         AudioManager.Instance.PlayMusic("LOOP_Welcome to Indie Game");
-        PlayFabManager.Instance.GetLeaderboard();
+
+        if (PlayFabManager.Instance.LoggedIn)
+        {
+            PlayFabManager.Instance.GetLeaderboard();
+        }
+       
     }
 
     private void StartGame()
@@ -69,8 +80,12 @@ public class UIMenu : MonoBehaviour
     {
         _credits.SetActive(!_credits.activeSelf);
 
-        if(_credits.activeSelf)
+        if (_credits.activeSelf)
+        {
+            Debug.Log("Play crdits");
             _credits.GetComponent<Credits>().PlayCredits();
+        }
+            
     }
 
     public void ToggleLeaderboard()
@@ -80,7 +95,20 @@ public class UIMenu : MonoBehaviour
 
     public void UpdateLeaderboard(string leaderboard)
     {
-        _highscoreList.text = leaderboard;
+        // Split the leaderboard string into lines
+        string[] lines = leaderboard.Split('\n');
+
+        // Format the first three lines with a different color
+        for (int i = 0; i < Mathf.Min(3, lines.Length); i++)
+        {
+            lines[i] = "<color=#FF3E7F>" + lines[i] + "</color>"; // Change color as needed
+        }
+
+        // Join the lines back together with newline characters as separator
+        string formattedLeaderboard = string.Join("\n", lines);
+
+        // Assign the formatted leaderboard text to the Text component
+        _highscoreList.text = formattedLeaderboard;
     }
     void ChangeVolume(float value)
     {
@@ -97,6 +125,14 @@ public class UIMenu : MonoBehaviour
         //Change sliders min/max values to range from 0 to 100 to make it more player friendly to read.
         float normalizedValue = ((value - _audioSlider.minValue) / (_audioSlider.maxValue - _audioSlider.minValue)) * (100 - 0) + 0;
         _volumeAmount.text = Mathf.RoundToInt(normalizedValue).ToString();
+
+    }
+    private void OnUserNameChanged(string input)
+    {
+        _startButton.interactable = true;
+
+        PlayFabManager.Instance.SendUserDisplayName(input);
+        PlayerPrefs.SetString("Username", input);
 
     }
 
