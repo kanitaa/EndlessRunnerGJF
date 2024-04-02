@@ -16,12 +16,18 @@ public class ButtonSound : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
         AudioManager.Instance.PlaySound("DM-CGS-32", true);
 
         if (_cake != null)
+        {
             _cake.SetActive(true);
+        }
+          
     }
 
     public void OnPointerExit(PointerEventData eventData)
     {
         if (_cake != null)
+        {
             _cake.SetActive(false);
+        }
+            
     }
 }

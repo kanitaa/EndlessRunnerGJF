@@ -4,6 +4,17 @@ using UnityEngine;
 
 public class Monster : MonoBehaviour
 {
+    private enum MonsterState
+    {
+        Wait,
+        Chase,
+        ResetChase
+    }
+    private MonsterState _myState;
+    private bool _isAwakened = false;
+
+    private Animator _anim;
+
     [SerializeField] private Transform _startPoint, _endPoint;
 
     [SerializeField] private float _movementSpeed;
@@ -15,10 +26,6 @@ public class Monster : MonoBehaviour
     [SerializeField] private Transform _bounceEnd;
     public Transform BounceEnd { get => _bounceEnd; }
 
-    private MonsterState _myState;
-
-    private Animator _anim;
-    private bool _isAwakened = false;
 
     private void Start()
     {
@@ -51,6 +58,7 @@ public class Monster : MonoBehaviour
 
     private void WaitForPlayer()
     {
+        //Awaken the monster when player is nearby and play the animation.
         if (!_isAwakened && Vector3.Distance(transform.position, _player.position) < 28f)
         {
             _anim.SetTrigger("Buff");
@@ -58,6 +66,7 @@ public class Monster : MonoBehaviour
             _isAwakened = true;
             
         }
+        //Enable chase.
         if (Vector3.Distance(transform.position, _player.position) < 20f)
         {
             _myState = MonsterState.Chase;
@@ -74,9 +83,9 @@ public class Monster : MonoBehaviour
 
         if (Vector3.Distance(transform.position, _endPoint.position) < 0.001f)
         {
-            _myState = MonsterState.ResetChase;
             _anim.SetBool("Run Forward", false);
             _anim.SetBool("Stunned Loop", true);
+            _myState = MonsterState.ResetChase;
         }
            
     }
@@ -86,7 +95,8 @@ public class Monster : MonoBehaviour
         yield return new WaitForSeconds(0.5f);
         _player.GetComponent<PlayerMovement>().MonsterChase(false);
 
-        yield return new WaitForSeconds(30f);
+        //Reset monsters location back to start.
+        yield return new WaitForSeconds(25f);
         _myState = MonsterState.Wait;
         transform.position = _startPoint.position;
         _endTrigger.SetActive(false);
@@ -105,9 +115,3 @@ public class Monster : MonoBehaviour
     }
 }
 
-enum MonsterState
-{
-    Wait,
-    Chase,
-    ResetChase
-}

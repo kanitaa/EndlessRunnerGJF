@@ -3,46 +3,32 @@ using UnityEngine;
 
 public class ObstacleDropper : MonoBehaviour
 {
-    [SerializeField] private GameObject[] _obstacles; 
-
     private void Start()
     {
         StartCoroutine(DropObstacle());
-
     }
-  
 
     private IEnumerator DropObstacle()
     {
-        // Define the step
-        int step = 2;
-
-        // Calculate the number of steps needed to cover the range
-        int numSteps = (GameManager.Instance.MaxPathValue - GameManager.Instance.MinPathValue) / step + 1;
-
-        // Initialize the current position
-        int currentPositionIndex = 0;
+        //The range of x positions where obstacles can spawn.
+        int minXPosition = GameManager.Instance.MinPathValue;
+        int maxXPosition = GameManager.Instance.MaxPathValue;
 
         while (true)
         {
-            // Calculate the current x position
-            int currentXPosition = GameManager.Instance.MinPathValue + currentPositionIndex * step;
+            //Get even number for x position because lane width is 2 units.
+            int randomXPosition = Random.Range(minXPosition / 2, maxXPosition / 2 + 1) * 2;
 
-            // Ensure the current position is within the range
-            if (currentXPosition <= GameManager.Instance.MaxPathValue)
-            {
-                int random = Random.Range(0, ObjectPoolManager.Instance.ObstaclePoolsDictionary.Count);
-                GameObject obstacle = ObjectPoolManager.Instance.ObstaclePoolsDictionary[random].Get();
-           
-                Vector3 obstaclePosition = transform.position;
-                obstaclePosition.x = currentXPosition;
-                obstacle.transform.position = obstaclePosition;
-               
-            }
+            //Get a random obstacle.
+            int randomIndex = Random.Range(0, ObjectPoolManager.Instance.ObstaclePoolsDictionary.Count);
+            GameObject obstacle = ObjectPoolManager.Instance.ObstaclePoolsDictionary[randomIndex].Get();
 
-            // Move to the next position index
-            currentPositionIndex = (currentPositionIndex + 1) % numSteps;
+            //Set it's position to the random x.
+            Vector3 obstaclePosition = transform.position;
+            obstaclePosition.x = randomXPosition;
+            obstacle.transform.position = obstaclePosition;
 
+            //Wait a bit before spawning the next obstacle.
             yield return new WaitForSeconds(2);
         }
     }

@@ -12,19 +12,27 @@ public class PlayerInput : MonoBehaviour
     }
     private void MovementInput()
     {
-        if (Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.LeftArrow)) 
+        if (Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.LeftArrow))
+        {
             _movement.MoveLeft();
-        else if (Input.GetKeyDown(KeyCode.D) || Input.GetKeyDown(KeyCode.RightArrow)) 
+        } 
+        else if (Input.GetKeyDown(KeyCode.D) || Input.GetKeyDown(KeyCode.RightArrow))
+        {
             _movement.MoveRight();
-
-        if (Input.GetKeyDown(KeyCode.Space)) 
+        }
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
             _movement.Jump();
-
+        }
+         
     }
 
     private void ShootInput()
     {
-        if (GameManager.Instance.IsPaused) return;
+        if (GameManager.Instance.IsPaused)
+        {
+            return;
+        }
 
         if (Input.GetMouseButtonDown(0))
         {
@@ -41,8 +49,9 @@ public class PlayerInput : MonoBehaviour
     private void UIInput()
     {
         if (Input.GetKeyDown(KeyCode.Escape) && GameManager.Instance.MyGameState == GameManager.GameState.Running)
+        {
             UIManager.Instance.TogglePause();
- 
+        }
     }
 
     private void Update()

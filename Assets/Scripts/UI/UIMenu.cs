@@ -6,11 +6,11 @@ using UnityEngine.UI;
 public class UIMenu : MonoBehaviour
 {
     [Header("Menu")]
-    [SerializeField] private GameObject _menu;
+    [SerializeField] private GameObject _menuPanel;
     [SerializeField] private Button _startButton, _optionsButton, _leaderboardButton, _creditsButton, _quitButton;
 
     [Header("Options")]
-    [SerializeField] private GameObject _options;
+    [SerializeField] private GameObject _optionsPanel;
     [SerializeField] Slider _audioSlider;
     [SerializeField] private TextMeshProUGUI _volumeAmount;
     [SerializeField] private TMP_InputField _usernameInput;
@@ -19,12 +19,13 @@ public class UIMenu : MonoBehaviour
 
 
     [Header("Credits")]
-    [SerializeField] private GameObject _credits;
+    [SerializeField] private GameObject _creditsPanel;
+    private Credits _credits;
     [SerializeField] private Button _backButtonCredits;
 
 
     [Header("Leaderboard")]
-    [SerializeField] private GameObject _leaderboard;
+    [SerializeField] private GameObject _leaderboardPanel;
     [SerializeField] private TextMeshProUGUI _highscoreList;
     [SerializeField] private GameObject _fireworks;
     [SerializeField] private Button _backButtonLeaderboard;
@@ -32,111 +33,69 @@ public class UIMenu : MonoBehaviour
 
     private void Start()
     {
-        SetButtonClicks();
+        InitializeMenuValues();
+        AudioManager.Instance.PlayMusic("LOOP_Welcome to Indie Game");
     }
-    private void SetButtonClicks()
+    private void InitializeMenuValues()
     {
+        //Menu
         _startButton.onClick.AddListener(StartGame);
         _optionsButton.onClick.AddListener(ToggleOptions);
         _leaderboardButton.onClick.AddListener(ToggleLeaderboard);
         _creditsButton.onClick.AddListener(ToggleCredits);
         _quitButton.onClick.AddListener(QuitGame);
 
-        _backButtonOptions.onClick.AddListener(ToggleOptions);
+        //Options
         _audioSlider.onValueChanged.AddListener(ChangeVolume);
-
         _audioSlider.value = AudioManager.Instance.Volume;
         ChangeVolume(AudioManager.Instance.Volume);
 
         _usernameInput.onSubmit.AddListener(OnUserNameChanged);
         _usernameInput.onEndEdit.AddListener(OnUserNameChanged);
 
-        _usernamePlaceholder.text = PlayerPrefs.GetString("Username");
+        if (PlayerPrefs.HasKey("Username"))
+        {
+            _usernamePlaceholder.text = PlayerPrefs.GetString("Username");
+        }
+   
+        _backButtonOptions.onClick.AddListener(ToggleOptions);
 
+        //Credits
+        _creditsPanel.SetActive(false);
+        _credits = _creditsPanel.GetComponent<Credits>();
         _backButtonCredits.onClick.AddListener(ToggleCredits);
 
-        _credits.SetActive(false);
-
-        _backButtonLeaderboard.onClick.AddListener(ToggleLeaderboard);
-
-        AudioManager.Instance.PlayMusic("LOOP_Welcome to Indie Game");
-
+        //Leaderboard
+        //Get leaderboard at start if possible (because of small delay in server requests).
         if (PlayFabManager.Instance.LoggedIn)
         {
             PlayFabManager.Instance.GetLeaderboard();
         }
-       
+        _backButtonLeaderboard.onClick.AddListener(ToggleLeaderboard);
+
     }
 
     private void StartGame()
     {
         SceneManager.LoadScene("GameScene");
     }
+
+    #region Options
     public void ToggleOptions()
     {
-        _options.SetActive(!_options.activeSelf);
+        _optionsPanel.SetActive(!_optionsPanel.activeSelf);
     }
-
-    public void ToggleCredits()
-    {
-        _credits.SetActive(!_credits.activeSelf);
-
-        if (_credits.activeSelf)
-        {
-            Debug.Log("Play crdits");
-            _credits.GetComponent<Credits>().PlayCredits();
-        }
-            
-    }
-
-    public void ToggleLeaderboard()
-    {
-        _leaderboard.SetActive(!_leaderboard.activeSelf);
-
-        if (_leaderboard.activeSelf)
-        {
-            _fireworks.GetComponent<ParticleSystem>().Play();
-            AudioManager.Instance.PlaySound("CrowdCheer", true);
-
-
-        }
-        else
-        {
-            _fireworks.SetActive(false);
-            _fireworks.SetActive(true);
-        }
-    }
-
-    public void UpdateLeaderboard(string leaderboard)
-    {
-        // Split the leaderboard string into lines
-        string[] lines = leaderboard.Split('\n');
-
-        // Format the first three lines with a different color
-        for (int i = 0; i < Mathf.Min(3, lines.Length); i++)
-        {
-            lines[i] = "<color=#FF3E7F>" + lines[i] + "</color>"; // Change color as needed
-        }
-
-        // Join the lines back together with newline characters as separator
-        string formattedLeaderboard = string.Join("\n", lines);
-
-        // Assign the formatted leaderboard text to the Text component
-        _highscoreList.text = formattedLeaderboard;
-    }
-    void ChangeVolume(float value)
+    private void ChangeVolume(float value)
     {
         AudioManager.Instance.SetVolume(value);
 
-        //Update mute toggle in game scene, if settings are at lowest audio.
+        //Mute audio if settings are at lowest value.
         if (value == _audioSlider.minValue)
         {
             AudioManager.Instance.IsMuted = true;
         }
 
-        value = Mathf.Clamp(value, _audioSlider.minValue, _audioSlider.maxValue);
-
-        //Change sliders min/max values to range from 0 to 100 to make it more player friendly to read.
+        //Convert value to percentage-like value for readability.
         float normalizedValue = ((value - _audioSlider.minValue) / (_audioSlider.maxValue - _audioSlider.minValue)) * (100 - 0) + 0;
         _volumeAmount.text = Mathf.RoundToInt(normalizedValue).ToString();
 
@@ -149,6 +108,52 @@ public class UIMenu : MonoBehaviour
         PlayerPrefs.SetString("Username", input);
 
     }
+    #endregion
+
+
+    public void ToggleCredits()
+    {
+        _creditsPanel.SetActive(!_creditsPanel.activeSelf);
+
+        if (_creditsPanel.activeSelf)
+        {
+            _credits.PlayCredits();
+        }    
+    }
+
+    #region Leaderboard
+    public void ToggleLeaderboard()
+    {
+        _leaderboardPanel.SetActive(!_leaderboardPanel.activeSelf);
+
+        if (_leaderboardPanel.activeSelf)
+        {
+            _fireworks.GetComponent<ParticleSystem>().Play();
+            AudioManager.Instance.PlaySound("CrowdCheer", true);
+        }
+        else
+        {
+            _fireworks.SetActive(false);
+            _fireworks.SetActive(true);
+        }
+    }
+
+    public void UpdateLeaderboard(string leaderboard)
+    {
+        //Split the string into lines.
+        string[] lines = leaderboard.Split('\n');
+
+        //Change the color of first 3 lines. For safety check, if there are less than 3 lines, color them all.
+        for (int i = 0; i < Mathf.Min(3, lines.Length); i++)
+        {
+            lines[i] = "<color=#FF3E7F>" + lines[i] + "</color>";
+        }
+
+        //Combine the lines back together.
+        string newLeaderboard = string.Join("\n", lines);
+        _highscoreList.text = newLeaderboard;
+    }
+    #endregion
 
     private void QuitGame()
     {

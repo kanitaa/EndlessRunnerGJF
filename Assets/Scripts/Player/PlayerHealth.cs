@@ -1,29 +1,43 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerHealth : MonoBehaviour
 {
-    [SerializeField] private int _health;
     private Animator _anim;
+    private PlayerInput _input;
+    private PlayerMovement _movement;
+    private Rigidbody _rb;
+    private CameraFollow _camFollow;
+    private DeathCamera _deathCam;
+
+    [SerializeField] private int _health;
 
     private bool _isDead = false;
     public bool IsDead { get => _isDead; }
     private void Start()
     {
-        _health = GameManager.Instance.PlayerHealth;
+        InitializeComponents();
+        UIManager.Instance.InitializeLives(_health);
+    }
+
+    private void InitializeComponents()
+    {
         _anim = GetComponent<Animator>();
+        _input = GetComponent<PlayerInput>();
+        _movement = GetComponent<PlayerMovement>();
+        _rb = GetComponent<Rigidbody>();
+        _camFollow = Camera.main.GetComponent<CameraFollow>();
+        _deathCam = Camera.main.GetComponent<DeathCamera>();
     }
     public void TakeDamage()
     {
-        return;
         if (_isDead)
         {
             return;
         }
 
-        GameManager.Instance.PlayerHealth--;
-        _health = GameManager.Instance.PlayerHealth;
+        _health--;
+        UIManager.Instance.UpdateLives(_health);
+        AudioManager.Instance.PlaySound("ScreamsShouts2_Humans_Female_shout-of-pain_028", true);
 
         if (_health < 1)
         {
@@ -33,16 +47,7 @@ public class PlayerHealth : MonoBehaviour
         {
             _anim.SetTrigger("TakeHit");
         }
-            
-        //_anim.SetBool("Run", false);
-
-
         
-        UIManager.Instance.UpdateLives();
-        AudioManager.Instance.PlaySound("ScreamsShouts2_Humans_Female_shout-of-pain_028", true);
-
-
-
     }
   
     public void Die()
@@ -53,27 +58,17 @@ public class PlayerHealth : MonoBehaviour
         }
 
         _isDead = true;
+        UIManager.Instance.UpdateLives(0);
 
-
-        GetComponent<PlayerMovement>().enabled = false;
-        GetComponent<PlayerInput>().enabled = false;
-        GetComponent<Rigidbody>().useGravity = true;
-
-       // _anim.SetBool("Run", false);
         _anim.SetTrigger("Die");
-
-
-        GameManager.Instance.PlayerHealth = 0;
-        UIManager.Instance.UpdateLives();
-
-
         AudioManager.Instance.PlayMusic("Rise (live vocals)");
-        Camera.main.GetComponent<DeathCamera>().Death();
 
+        _movement.enabled = false;
+        _input.enabled = false;
+        _rb.useGravity = true;
 
-
-
-       
+        _camFollow.enabled = false;
+        _deathCam.enabled = true;
 
         Invoke("EndGame", 5);
 

@@ -13945,7 +13945,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1034378344
 RectTransform:
   m_ObjectHideFlags: 0
@@ -14919,7 +14919,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Forward Jump
+  m_text: Leap
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -17068,21 +17068,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0efe6950a2e50cd47a9da64071a7e20e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _menu: {fileID: 479447570}
+  _menuPanel: {fileID: 479447570}
   _startButton: {fileID: 6500047849211107594}
   _optionsButton: {fileID: 6500047849743673230}
   _leaderboardButton: {fileID: 459080458}
   _creditsButton: {fileID: 6500047850145363673}
   _quitButton: {fileID: 6500047849881334193}
-  _options: {fileID: 334966551}
+  _optionsPanel: {fileID: 334966551}
   _audioSlider: {fileID: 678849736}
   _volumeAmount: {fileID: 671885550}
   _usernameInput: {fileID: 2124731330}
   _usernamePlaceholder: {fileID: 1054978572}
   _backButtonOptions: {fileID: 6500047849870388539}
-  _credits: {fileID: 431252139}
+  _creditsPanel: {fileID: 431252139}
   _backButtonCredits: {fileID: 6500047850759392996}
-  _leaderboard: {fileID: 869940800}
+  _leaderboardPanel: {fileID: 869940800}
   _highscoreList: {fileID: 851700208}
   _fireworks: {fileID: 906828576}
   _backButtonLeaderboard: {fileID: 2031645237}

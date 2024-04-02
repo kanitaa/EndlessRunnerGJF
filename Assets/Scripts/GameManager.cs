@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -8,21 +7,26 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager Instance;
 
+    public enum GameState
+    {
+        Start,
+        Running,
+        End
+    }
     private GameState _myGameState;
     public GameState MyGameState { get => _myGameState; }
 
-    private int _playerScore = 0;
-    public int Score { get => _playerScore; }
+    private bool _isPaused = false;
+    public bool IsPaused { get => _isPaused; }
 
-    [SerializeField] private int _playerHealth = 3;
-    public int PlayerHealth { get => _playerHealth; set => _playerHealth = value; }
+    private int _score = 0;
+    public int Score { get => _score; }
 
 
     [SerializeField] List<GameObject> _areas = new();
 
-    [SerializeField]
     private int [] _currentAreas = new int[2];
-    [SerializeField] private int _firstArea = 0;
+    private int _firstArea = 0;
 
 
     [SerializeField] private int _minPathValue;
@@ -31,16 +35,16 @@ public class GameManager : MonoBehaviour
     [SerializeField] private int _maxPathValue;
     public int MaxPathValue { get => _maxPathValue; set => _maxPathValue = value; }
 
-    private bool _isPaused = false;
-    public bool IsPaused { get => _isPaused; }
-
     private void Awake()
     {
-        if (Instance == null) 
+        if (Instance == null)
+        {
             Instance = this;
-        else 
+        }
+        else
+        {
             Destroy(gameObject);
-
+        }
     }
 
     private void Start()
@@ -48,22 +52,22 @@ public class GameManager : MonoBehaviour
         UpdateGameState(GameState.Start);
     }
 
-    #region Game State
+    #region Game States
     public void UpdateGameState(GameState state)
     {
-     switch (state)
-     {
-        case GameState.Start:
-            InitializeGame();
-            break;
-        case GameState.Running:
-            RunGame();
-            break;
-        case GameState.End:
-            EndGame();
-            break;
-        default:
-            break;
+        switch (state)
+        {
+            case GameState.Start:
+                InitializeGame();
+                break;
+            case GameState.Running:
+                RunGame();
+                break;
+            case GameState.End:
+                EndGame();
+                break;
+            default:
+                break;
        }
     }
 
@@ -72,78 +76,81 @@ public class GameManager : MonoBehaviour
         _currentAreas[0] = 0;
         _currentAreas[1] = -1;
         _firstArea = 0;
-        _myGameState = GameState.Start;
         TogglePause(true);
     }
 
     private void RunGame()
     {
-        TogglePause(false);
         _myGameState = GameState.Running;
         AudioManager.Instance.PlayMusic("LOOP_Happy Quest");
+        TogglePause(false);
     }
 
     private void EndGame()
     {
         UIManager.Instance.GameOver();
-        _myGameState = GameState.End;
+        PlayFabManager.Instance.SendLeaderboard(_score);
         TogglePause(true);
-        PlayFabManager.Instance.SendLeaderboard(_playerScore);
-        Debug.Log("Game Over");
     }
     #endregion
+
+
+    #region Pause, Restart, Score
     public void TogglePause(bool isPaused)
     {
         if (isPaused)
+        {
             Time.timeScale = 0;
+        }
         else
+        {
             Time.timeScale = 1;
+        }
 
         _isPaused = isPaused;
     }
 
     public void RestartLevel()
     {
-        SceneManager.LoadScene(1);
+        int currentScene = SceneManager.GetActiveScene().buildIndex;
+        SceneManager.LoadScene(currentScene);
     }
+
+    public void IncreaseScore(int amount)
+    {
+        _score += amount;
+        UIManager.Instance.UpdateScore(_score);
+    }
+    #endregion
+
+
     public void AddArea(Transform currentAreaEndPoint)
     {
         int randomIndex = Random.Range(0, _areas.Count);
 
-
+        //Make sure one of the current areas isnt the one being added.
         while (_currentAreas.Contains(randomIndex))
         {
             randomIndex = Random.Range(0, _areas.Count);
 
         }
 
+        //Move randomized area at the end of current area.
         _areas[randomIndex].transform.position = currentAreaEndPoint.position;
 
+        //Keep track of which areas are currently visible for player.
         if(_firstArea == _currentAreas[0])
         {
             _currentAreas[1] = randomIndex;
             _firstArea = _currentAreas[1];
-        }else if(_firstArea == _currentAreas[1])
+        }
+        else if(_firstArea == _currentAreas[1])
         {
             _currentAreas[0] = randomIndex;
             _firstArea = _currentAreas[0];
         }
 
         Debug.Log("New area added." + _areas[randomIndex].name);
-    }
-
-    public void IncreaseScore(int amount)
-    {
-        _playerScore += amount;
-        UIManager.Instance.UpdateScore(_playerScore);
-    }
-
-
-    public enum GameState
-    {
-        Start,
-        Running,
-        End
     }
 
 }

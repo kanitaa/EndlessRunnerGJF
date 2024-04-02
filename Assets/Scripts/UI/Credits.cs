@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -20,12 +19,12 @@ public class Credits : MonoBehaviour
   
     IEnumerator ScrollToPosition(float targetPosition)
     {
-        float elapsedTime = 0f;
-
-        while (elapsedTime < _scrollDuration)
+        float currentTime = 0f;
+        //Scroll credits to the end.
+        while (currentTime < _scrollDuration)
         {
-            elapsedTime += Time.deltaTime;
-            float newPosition = Mathf.Lerp(_startPosition, targetPosition, elapsedTime / _scrollDuration);
+            currentTime += Time.deltaTime;
+            float newPosition = Mathf.Lerp(_startPosition, targetPosition, currentTime / _scrollDuration);
             _scroll.content.localPosition = new Vector2(0, newPosition);
             yield return null;
         }
@@ -35,8 +34,8 @@ public class Credits : MonoBehaviour
 
     public void PlayCredits()
     {
+        //Ensure credits are at the start position.
         _scroll.content.localPosition = new Vector2(0, _startPosition);
-
         StartCoroutine(ScrollToPosition(_targetPosition));
     }
 }

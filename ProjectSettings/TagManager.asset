@@ -12,9 +12,9 @@ TagManager:
   - Death
   - Monster
   - MonsterTrigger
-  - GripTrigger
   - Cake
   - Grass
+  - LeapTrigger
   layers:
   - Default
   - TransparentFX
@@ -25,7 +25,7 @@ TagManager:
   - Area
   - Obstacle
   - Ghost
-  - 
+  - Ground
   - 
   - 
   - 

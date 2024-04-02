@@ -79,7 +79,7 @@ public class ObjectPoolManager : MonoBehaviour
                     if (obstacle != null)
                     {
                         //Set obstacles ID for releasing to pool.
-                        obstacle.id = ID;
+                        obstacle.ID = ID;
                     }
                     else
                     {
