@@ -92,9 +92,6 @@ public class Monster : MonoBehaviour
 
     private IEnumerator ResetChase()
     {
-        yield return new WaitForSeconds(0.5f);
-        _player.GetComponent<PlayerMovement>().MonsterChase(false);
-
         //Reset monsters location back to start.
         yield return new WaitForSeconds(25f);
         _myState = MonsterState.Wait;
@@ -111,6 +108,8 @@ public class Monster : MonoBehaviour
             _myState = MonsterState.ResetChase;
             _anim.SetBool("Run Forward", false);
             _anim.SetBool("Stunned Loop", true);
+
+            other.GetComponent<PlayerHealth>().Die();
         }
     }
 }

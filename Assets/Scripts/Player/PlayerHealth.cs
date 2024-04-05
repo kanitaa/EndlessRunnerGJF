@@ -37,7 +37,8 @@ public class PlayerHealth : MonoBehaviour
 
         _health--;
         UIManager.Instance.UpdateLives(_health);
-        AudioManager.Instance.PlaySound("ScreamsShouts2_Humans_Female_shout-of-pain_028", true);
+        // AudioManager.Instance.PlaySound("ScreamsShouts2_Humans_Female_shout-of-pain_028", true);
+        AudioManager.Instance.PlaySound("110010__tuberatanka__cat-meow-ii", true);
 
         if (_health < 1)
         {

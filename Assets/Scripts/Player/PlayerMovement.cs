@@ -126,6 +126,8 @@ public class PlayerMovement : MonoBehaviour
             _cam.IsPlayerChased = false;
             transform.localRotation = Quaternion.Euler(0, 0, 0);
         }
+
+        _isMonsterChasing = isChasing;
     }
 
     public void Jump(bool climbJump=false)

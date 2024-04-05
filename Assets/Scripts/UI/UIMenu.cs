@@ -1,7 +1,9 @@
+using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+
 
 public class UIMenu : MonoBehaviour
 {
@@ -13,8 +15,9 @@ public class UIMenu : MonoBehaviour
     [SerializeField] private GameObject _optionsPanel;
     [SerializeField] Slider _audioSlider;
     [SerializeField] private TextMeshProUGUI _volumeAmount;
-    [SerializeField] private TMP_InputField _usernameInput;
-    [SerializeField] private TextMeshProUGUI _usernamePlaceholder;
+    [SerializeField] private TMP_InputField _userNameInput;
+    [SerializeField] private TextMeshProUGUI _userNamePlaceholder;
+    [SerializeField] private GameObject _userNameWarning;
     [SerializeField] private Button _backButtonOptions;
 
 
@@ -50,12 +53,11 @@ public class UIMenu : MonoBehaviour
         _audioSlider.value = AudioManager.Instance.Volume;
         ChangeVolume(AudioManager.Instance.Volume);
 
-        _usernameInput.onSubmit.AddListener(OnUserNameChanged);
-        _usernameInput.onEndEdit.AddListener(OnUserNameChanged);
+        _userNameInput.onEndEdit.AddListener(OnUserNameChanged);
 
         if (PlayerPrefs.HasKey("Username"))
         {
-            _usernamePlaceholder.text = PlayerPrefs.GetString("Username");
+            _userNamePlaceholder.text = PlayerPrefs.GetString("Username");
         }
    
         _backButtonOptions.onClick.AddListener(ToggleOptions);
@@ -102,11 +104,21 @@ public class UIMenu : MonoBehaviour
     }
     private void OnUserNameChanged(string input)
     {
-        _startButton.interactable = true;
-
         PlayFabManager.Instance.SendUserName(input);
-        PlayerPrefs.SetString("Username", input);
+    }
 
+    public void OnUserNameChangeFailed()
+    {
+        Debug.Log("Change failed");
+        _userNameWarning.SetActive(true);
+        StartCoroutine(HideWarning());
+        
+    }
+
+    private IEnumerator HideWarning()
+    {
+        yield return new WaitUntil(() => Input.GetMouseButtonDown(0));
+        _userNameWarning.SetActive(false);
     }
     #endregion
 

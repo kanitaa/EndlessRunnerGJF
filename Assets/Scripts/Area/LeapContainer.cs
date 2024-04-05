@@ -4,35 +4,39 @@ using UnityEngine;
 
 public class LeapContainer : MonoBehaviour
 {
-    [SerializeField] private Area _leapArea;
-
     private PlayerMovement _movement;
-
+    //Leap start and end locations.
     [SerializeField] private GameObject[] _leapTriggers;
+    
     private GameObject _leapEnd;
-
+    //Leap objects in the leap sequence.
     [SerializeField] private List<Leap> _leaps = new();
-
-    private bool _checkSequence = false;
-
-    private bool _firstMove = true;
-
+    //Keycode order of leap objects.
     [SerializeField] private List<KeyCode> _leapKeyOrder = new();
 
+    private bool _checkSequence = false;
+    //If sequence has started but player still needs to dodge objects with A/D, don't fail sequence with those keybinds.
+    private bool _firstMove = true;
+
+    
+    //For monster chase player needs to cross the leap container in reverse order.
     private bool _reverseOrder = false;
 
-    // Use this if you want the user to press the series of keys in a given times interval
-    public float DelayBeforeFail;
+    //The time player has to press correct key in sequence.
+    [SerializeField] private float _delayBeforeFail;
 
-    // The index in the array of the next key to press in order to continue the series
+    //The time when last correct key was pressed.
+    private float _lastKeyPressTime;
+
+    //Current leap index in the leap sequence.
     private int _leapIndex;
 
-    // The time (in seconds) the last correct key has been pressed
-    private float lastKeyPressTime;
+  
 
 
     private void Start()
     {
+        //Add correct keyorder to keyorder list.
         foreach(Leap leap in _leaps)
         {
             _leapKeyOrder.Add(leap.KeyCode);
@@ -42,6 +46,7 @@ public class LeapContainer : MonoBehaviour
     public void StartLeapSequence(PlayerMovement movement, GameObject startTrigger)
     {
         _movement = movement;
+        //Check which side player enters the leap container for initializing variables.
         if (startTrigger == _leapTriggers[0])
         {
             _leapEnd = _leapTriggers[1];
@@ -61,10 +66,11 @@ public class LeapContainer : MonoBehaviour
  
         _checkSequence = true;
         _firstMove = true;
-        lastKeyPressTime = Time.time;
+        _lastKeyPressTime = Time.time;
 
         _leaps[_leapIndex].EnableGlow(true);
         _leapEnd.gameObject.SetActive(false);
+
         StartCoroutine(LeapSequence());
     }
 
@@ -72,81 +78,79 @@ public class LeapContainer : MonoBehaviour
     {
         while (_checkSequence)
         {
-            // Make sure some keys have been specified in the inspector 
+            //Ensure there are keycodes to compare to.
             if (_leapKeyOrder.Count == 0)
             {
-                Debug.Log("No grips in container!");
                 _checkSequence = false;
+                Debug.Log("No leap objects assigned in leap container!");
                 yield return null;
             }
-            // Check if the user pressed the key before the end of the timer
-            if (Time.time - lastKeyPressTime > DelayBeforeFail)
+            //If player hasn't pressed any key fast enough.
+            if (Time.time - _lastKeyPressTime > _delayBeforeFail)
             {
                 _checkSequence = false;
-            
-                   
-                Debug.Log("Timer ran out");
+                Debug.Log("Leap timer ran out!");
             }
 
-            // Correct key pressed!
+            //Correct key pressed.
             if (Input.GetKeyDown(_leapKeyOrder[_leapIndex]))
             {
+                //Move player to leap object's position.
                 _movement.MoveToPosition(_leaps[_leapIndex].gameObject.transform.position);
                 
-                lastKeyPressTime = Time.time;
+                _lastKeyPressTime = Time.time;
 
                 _leaps[_leapIndex].EnableGlow(false);
-
                 _firstMove = false;
 
+                //Leap index depends on which way player is going.
                 if (!_reverseOrder)
+                {
                     _leapIndex++;
-                else 
+                }  
+                else
+                {
                     _leapIndex--;
+                }
 
-               
-
-                // Series completed!
+                //Sequence completed.
                 if (!_reverseOrder && _leapIndex >= _leapKeyOrder.Count || _reverseOrder && _leapIndex <= -1)
                 {
+                    //Wait for player to finish moving and then move to leap end position.
                     yield return new WaitForSeconds(_movement.GripSpeed);
                     _movement.MoveToPosition(_leapEnd.transform.position);
 
                     _checkSequence = false;
-
-                   
-
-                   // yield return new WaitForSeconds(2);
                     _movement.IsLeaping = false;
                   
                     yield return new WaitForSeconds(5);
-
+                    //Player isn't near leap end object anymore, enable it so it can be triggered if player comes back.
                     _leapEnd.gameObject.SetActive(true);
                    
 
                 }
                 else
                 {
+                    //Glow up the next leap object for player clue.
                     _leaps[_leapIndex].EnableGlow(true);
                    
                 }
             }
-            // Wrong key pressed!
+            //Wrong key pressed.
             else if (Input.anyKeyDown)
             {
                 if(_firstMove && Input.GetKeyDown(KeyCode.A) || _firstMove && Input.GetKeyDown(KeyCode.D))
                 {
-                    //Allow player to do horizontal movement when they havent started leaping but have entered leap start area.
+                    //Allow player to do horizontal movement when they haven't started leaping but have entered leap start area.
                 }
                 else
                 {
                     KeyCode keyPressed = KeyCode.None;
 
                     if (Input.GetKeyDown(KeyCode.Q)) keyPressed = KeyCode.Q;
-                    else if (Input.GetKeyDown(KeyCode.W)) keyPressed = KeyCode.W;
                     else if (Input.GetKeyDown(KeyCode.E)) keyPressed = KeyCode.E;
 
-
+                    //If player pressed wrong keycode from possible keycodes, move player a bit towards the wrong leap object before fail.
                     if (keyPressed != KeyCode.None)
                     {
                         for (int i = _leapIndex; i < _leaps.Count; i++)
@@ -158,11 +162,7 @@ public class LeapContainer : MonoBehaviour
                             }
                         }
                     }
-
-
                     _checkSequence = false;
-
-
                 }
             }
             yield return null;

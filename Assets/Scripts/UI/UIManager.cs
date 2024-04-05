@@ -1,3 +1,4 @@
+using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -11,6 +12,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] private GameObject _startPanel;
     [SerializeField] private Button _startButton;
     [SerializeField] private TMP_InputField _userNameInput;
+    [SerializeField] private GameObject _userNameWarning;
 
     [Header("Pause")]
     [SerializeField] private GameObject _pausePanel;
@@ -19,7 +21,11 @@ public class UIManager : MonoBehaviour
     [Header("Game Over")]
     [SerializeField] private GameObject _gameOverPanel;
     [SerializeField] private TextMeshProUGUI _scoreAmount;
-    [SerializeField] private Button _tryAgainButton, _returnMenuButton;
+    [SerializeField] private Button _tryAgainButton, _returnMenuButton, _leaderboardButton, _backButtonLB;
+    [SerializeField] private GameObject _leaderboardPanel;
+    [SerializeField] private TextMeshProUGUI _highscoreList;
+
+
 
     [Header("Game Overlay")]
     [SerializeField] private GameObject _gameOverlayPanel;
@@ -56,6 +62,9 @@ public class UIManager : MonoBehaviour
         _tryAgainButton.onClick.AddListener(RestartLevel);
         _returnMenuButton.onClick.AddListener(ReturnMenu);
 
+        _leaderboardButton.onClick.AddListener(ToggleLeaderboard);
+        _backButtonLB.onClick.AddListener(ToggleLeaderboard);
+
         //If player already has a username, no need to ask for one again.
         if (PlayerPrefs.HasKey("Username"))
         {
@@ -72,11 +81,25 @@ public class UIManager : MonoBehaviour
     }
     private void OnUserNameChanged(string input)
     {
-        //Allow player to start the game after writing something.
-        if (!_startButton.interactable)
-        {
-            _startButton.interactable = true;
-        }
+        PlayFabManager.Instance.SendUserName(input);
+    }
+    public void OnUserNameChangeSuccess()
+    {
+        Debug.Log("Change success");
+        _startButton.interactable = true;
+    }
+    public void OnUserNameChangeFailed()
+    {
+        Debug.Log("Change failed");
+        _userNameWarning.SetActive(true);
+        StartCoroutine(HideWarning());
+
+    }
+
+    private IEnumerator HideWarning()
+    {
+        yield return new WaitUntil(() => Input.GetMouseButtonDown(0));
+        _userNameWarning.SetActive(false);
     }
 
     private void RunGame()
@@ -123,8 +146,34 @@ public class UIManager : MonoBehaviour
         _gameOverlayPanel.SetActive(false);
         _scoreAmount.text = "You destroyed \n<u>"+ GameManager.Instance.Score.ToString()+"</u> ghosts!";
     }
+    #region Leaderboard
+    private void ToggleLeaderboard()
+    {
+        _leaderboardPanel.SetActive(!_leaderboardPanel.activeSelf);
 
+        if (_leaderboardPanel.activeSelf)
+        {
+            PlayFabManager.Instance.GetLeaderboard();
+            AudioManager.Instance.PlaySound("CrowdCheer", true);
+        }
+      
+    }
+    public void UpdateLeaderboard(string leaderboard)
+    {
+        //Split the string into lines.
+        string[] lines = leaderboard.Split('\n');
 
+        //Change the color of first 3 lines. For safety check, if there are less than 3 lines, color them all.
+        for (int i = 0; i < Mathf.Min(3, lines.Length); i++)
+        {
+            lines[i] = "<color=#FF3E7F>" + lines[i] + "</color>";
+        }
+
+        //Combine the lines back together.
+        string newLeaderboard = string.Join("\n", lines);
+        _highscoreList.text = newLeaderboard;
+    }
+    #endregion
     #region Game Overlay
     public void InitializeLives(int lives)
     {

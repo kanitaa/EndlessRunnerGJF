@@ -1,28 +1,29 @@
 using System.Collections;
-using TMPro;
 using UnityEngine;
 
 public class Leap : MonoBehaviour
 {
-    enum LeapPosition { Left, Right };
-
-    [SerializeField] LeapPosition _position;
-
-    public KeyCode KeyCode;
-
+    [SerializeField] private KeyCode _keyCode;
+    public KeyCode KeyCode { get => _keyCode; }
 
     private Vector3 _startPosition;
+
     [SerializeField] private float _fallSpeed;
 
     private MeshRenderer _mesh;
+    [SerializeField] private Material _ogMaterial, _glowMaterial;
+    [SerializeField] private GameObject _glowParticle;
 
-    [SerializeField] Material _ogMaterial, _glowMaterial;
-    [SerializeField] GameObject _glowParticle;
+    private Rigidbody _rb;
 
     private void Start()
     {
         _startPosition = transform.localPosition;
         _mesh = GetComponent<MeshRenderer>();
+        if (GetComponent<Rigidbody>() != null)
+        {
+            _rb = GetComponent<Rigidbody>();
+        }
     }
 
     public void EnableGlow(bool IsGlowing)
@@ -40,34 +41,34 @@ public class Leap : MonoBehaviour
         }
     }
 
-    public void DestroyGrip(Vector3 startPosition)
+    public void DestroyLeap(Vector3 startPosition)
     {
-        StartCoroutine(GripDestruction(startPosition));
+        StartCoroutine(LeapDestruction(startPosition));
     }
 
     private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Monster"))
-            DestroyGrip(other.transform.position);
+        {
+            DestroyLeap(other.transform.position);
+        }
     }
 
-    IEnumerator GripDestruction(Vector3 startPosition)
+    private IEnumerator LeapDestruction(Vector3 startPosition)
     {
-        // Calculate direction from start position to current position
+        //Calculate direction from start position to current position.
         Vector3 explosionDirection = (transform.position - startPosition).normalized;
 
-        // Apply force in the calculated direction
-        GetComponent<Rigidbody>().AddForce(explosionDirection * 50, ForceMode.Impulse);
+        // Apply force.
+        _rb.AddForce(explosionDirection * 50, ForceMode.Impulse);
 
-        // Wait for a short duration to allow the object to move due to the applied force
+        // Wait before resetting the leap object.
         yield return new WaitForSeconds(30);
 
-        // Perform any other actions after the explosion effect
-        //Stop rigidbody's movement.
-        GetComponent<Rigidbody>().isKinematic = true;
+        //Stop rigidbody's movement and reset position.
+        _rb.isKinematic = true;
         transform.localPosition = _startPosition;
-        GetComponent<Rigidbody>().isKinematic = false;
-
+        _rb.isKinematic = false;
     }
 }
 

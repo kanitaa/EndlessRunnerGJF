@@ -36,16 +36,19 @@ public class DetectCollision : MonoBehaviour
 
         if (other.CompareTag("LeapTrigger") && !_movement.IsLeaping)
         {
+            Debug.Log(other.gameObject.name);
             other.GetComponentInParent<LeapContainer>().StartLeapSequence(_movement, other.gameObject);
             _movement.IsLeaping = true;
         }
-
         if (other.CompareTag("Monster") && !_health.IsDead)
         {
             Vector3 endPosition = other.GetComponent<Monster>().BounceEnd.position;
             _movement.MoveToPosition(endPosition);
         }
-
+        if (other.CompareTag("MonsterTrigger") && _movement.IsMonsterChasing)
+        {
+            _movement.MonsterChase(false);
+        }
         if (other.CompareTag("Obstacle"))
         {
             _health.TakeDamage();

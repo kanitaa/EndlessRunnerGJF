@@ -2,7 +2,10 @@ using PlayFab;
 using PlayFab.ClientModels;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEditor;
 using UnityEngine;
+using UnityEngine.SceneManagement;
+
 
 public class PlayFabManager : MonoBehaviour
 {
@@ -12,6 +15,11 @@ public class PlayFabManager : MonoBehaviour
 
     private bool _loggedIn;
     public bool LoggedIn { get => _loggedIn; }
+
+    private bool _menuScene = true;
+
+    private UIMenu _menuUI = null;
+    private UIManager _gameUI = null;
 
     private void Awake()
     {
@@ -29,7 +37,6 @@ public class PlayFabManager : MonoBehaviour
     }
     private void Start()
     {
-      
         //Store random string UserID to PlayerPrefs, and use it as Playfab userID.
         if (!PlayerPrefs.HasKey("UserID"))
         {
@@ -42,6 +49,10 @@ public class PlayFabManager : MonoBehaviour
         }
 
         Login();
+
+        SceneManager.activeSceneChanged += OnSceneChanged;
+        _menuUI = GameObject.Find("MenuUI").GetComponent<UIMenu>();
+
 
     }
 
@@ -83,11 +94,25 @@ public class PlayFabManager : MonoBehaviour
     private void OnUserNameUpdate(UpdateUserTitleDisplayNameResult result)
     {
         Debug.Log("Successful username change.");
+        PlayerPrefs.SetString("Username", result.DisplayName);
+
+        if (!_menuScene)
+        {
+            _gameUI.OnUserNameChangeSuccess();
+        }
     }
 
     private void OnUserNameError(PlayFabError error)
     {
-        //TO-DO notify player when name change fails.
+        if (_menuScene)
+        {
+            _menuUI.OnUserNameChangeFailed();
+        }
+        else
+        {
+           _gameUI.OnUserNameChangeFailed();
+        }
+
         Debug.Log("Error while updating username.");
         Debug.Log(error.GenerateErrorReport());
     }
@@ -130,8 +155,6 @@ public class PlayFabManager : MonoBehaviour
 
     private void OnLeaderboardGet(GetLeaderboardResult result)
     {
-        UIMenu menu = GameObject.Find("MenuUI").GetComponent<UIMenu>();
-
         string leaderboard = "";
 
         foreach(var item in result.Leaderboard)
@@ -142,7 +165,15 @@ public class PlayFabManager : MonoBehaviour
 
         }
 
-        menu.UpdateLeaderboard(leaderboard);
+        if (_menuScene)
+        {
+            _menuUI.UpdateLeaderboard(leaderboard);
+        }
+        else
+        {
+            _gameUI.UpdateLeaderboard(leaderboard);
+        }
+
     }
     #endregion
 
@@ -152,4 +183,19 @@ public class PlayFabManager : MonoBehaviour
         Debug.Log("Error while requesting.");
         Debug.Log(error.GenerateErrorReport());
     }
+    //Keep track of current scene to know which UI info to update.
+    private void OnSceneChanged(Scene current, Scene next)
+    {
+        if(next.name == "MenuScene")
+        {
+            _menuUI = GameObject.Find("MenuUI").GetComponent<UIMenu>();
+            _menuScene = true;
+        }
+        else if(next.name == "GameScene")
+        {
+            _gameUI = GameObject.Find("GameUI").GetComponent<UIManager>();
+            _menuScene = false;
+        }
+    }
+
 }

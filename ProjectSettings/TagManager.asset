@@ -6,8 +6,6 @@ TagManager:
   tags:
   - Wall
   - Ground
-  - GripStart
-  - GripEnd
   - Obstacle
   - Death
   - Monster
