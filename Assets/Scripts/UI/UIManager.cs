@@ -224,4 +224,12 @@ public class UIManager : MonoBehaviour
     }
 
     #endregion
+
+    private void OnDestroy()
+    {
+        if (_health != null)
+        {
+            _health.UpdateLives -= OnUpdateLives;
+        }
+    }
 }
