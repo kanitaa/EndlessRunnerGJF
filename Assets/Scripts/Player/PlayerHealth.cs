@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class PlayerHealth : MonoBehaviour
 {
-    public event Action LoseLife;
+    public event Action UpdateLives;
 
     private Animator _anim;
     private PlayerInput _input;
@@ -50,7 +50,7 @@ public class PlayerHealth : MonoBehaviour
         else
         {
             _anim.SetTrigger("TakeHit");
-            LoseLife?.Invoke();
+            UpdateLives?.Invoke();
         }
         
     }
@@ -64,7 +64,7 @@ public class PlayerHealth : MonoBehaviour
 
         _isDead = true;
         _health = 0;
-        LoseLife?.Invoke();
+        UpdateLives?.Invoke();
 
         _anim.SetTrigger("Die");
         AudioManager.Instance.PlayMusic("Rise (live vocals)");

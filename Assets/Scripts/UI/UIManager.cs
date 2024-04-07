@@ -51,7 +51,7 @@ public class UIManager : MonoBehaviour
 
         if (_health != null)
         {
-            _health.LoseLife += UpdateLives;
+            _health.UpdateLives += OnUpdateLives;
         }
 
         SetButtonClicks();
@@ -198,7 +198,7 @@ public class UIManager : MonoBehaviour
 
         _gameOverlayPanel.SetActive(false);
     }
-    public void UpdateLives()
+    private void OnUpdateLives()
     {
         //Loop through hearts.
         for(int i = _heartsContainer.childCount -1; i >= 0; i--)
