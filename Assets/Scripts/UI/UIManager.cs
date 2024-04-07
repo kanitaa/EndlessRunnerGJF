@@ -8,6 +8,9 @@ public class UIManager : MonoBehaviour
 {
     public static UIManager Instance;
 
+    [SerializeField] private PlayerHealth _health;
+
+
     [Header("Game Start")]
     [SerializeField] private GameObject _startPanel;
     [SerializeField] private Button _startButton;
@@ -46,6 +49,11 @@ public class UIManager : MonoBehaviour
             Destroy(gameObject);
         }
 
+        if (_health != null)
+        {
+            _health.LoseLife += UpdateLives;
+        }
+
         SetButtonClicks();
     }
 
@@ -77,6 +85,8 @@ public class UIManager : MonoBehaviour
             _userNameInput.onSubmit.AddListener(OnUserNameChanged);
             _userNameInput.onEndEdit.AddListener(OnUserNameChanged);
         }
+
+        InitializeLives();
             
     }
     private void OnUserNameChanged(string input)
@@ -175,8 +185,9 @@ public class UIManager : MonoBehaviour
     }
     #endregion
     #region Game Overlay
-    public void InitializeLives(int lives)
+    public void InitializeLives()
     {
+        int lives = _health.Health;
         _heartImages = new Image[lives];
 
         for (int i = 0; i < lives; i++)
@@ -187,13 +198,13 @@ public class UIManager : MonoBehaviour
 
         _gameOverlayPanel.SetActive(false);
     }
-    public void UpdateLives(int lives)
+    public void UpdateLives()
     {
         //Loop through hearts.
         for(int i = _heartsContainer.childCount -1; i >= 0; i--)
         {
             //Disable the heart if its index is greater than the remaining lives.
-            _heartImages[i].enabled = (i < lives);
+            _heartImages[i].enabled = (i < _health.Health);
         }
     }
 

@@ -1,7 +1,10 @@
+using System;
 using UnityEngine;
 
 public class PlayerHealth : MonoBehaviour
 {
+    public event Action LoseLife;
+
     private Animator _anim;
     private PlayerInput _input;
     private PlayerMovement _movement;
@@ -10,13 +13,14 @@ public class PlayerHealth : MonoBehaviour
     private DeathCamera _deathCam;
 
     [SerializeField] private int _health;
+    public int Health { get => _health; }
 
     private bool _isDead = false;
     public bool IsDead { get => _isDead; }
+
     private void Start()
     {
         InitializeComponents();
-        UIManager.Instance.InitializeLives(_health);
     }
 
     private void InitializeComponents()
@@ -34,10 +38,9 @@ public class PlayerHealth : MonoBehaviour
         {
             return;
         }
-
+      
         _health--;
-        UIManager.Instance.UpdateLives(_health);
-        // AudioManager.Instance.PlaySound("ScreamsShouts2_Humans_Female_shout-of-pain_028", true);
+       
         AudioManager.Instance.PlaySound("110010__tuberatanka__cat-meow-ii", true);
 
         if (_health < 1)
@@ -47,6 +50,7 @@ public class PlayerHealth : MonoBehaviour
         else
         {
             _anim.SetTrigger("TakeHit");
+            LoseLife?.Invoke();
         }
         
     }
@@ -59,7 +63,8 @@ public class PlayerHealth : MonoBehaviour
         }
 
         _isDead = true;
-        UIManager.Instance.UpdateLives(0);
+        _health = 0;
+        LoseLife?.Invoke();
 
         _anim.SetTrigger("Die");
         AudioManager.Instance.PlayMusic("Rise (live vocals)");
